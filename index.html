@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flappy Banana</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="top">
+    <h1>Flappy Banana</h1>
+    <p>Fly through the pipes. Crash, and a banana puzzle gives you one more try.</p>
+  </header>
+
+  <main class="layout">
+
+    <!-- Game area: the bird and pipes are added in a later step -->
+    <section class="stage" aria-label="Game area">
+      <canvas id="gameCanvas" width="320" height="480"></canvas>
+      <p class="stage-note">Game area. The bird arrives in a later step.</p>
+    </section>
+
+    <!-- Puzzle panel: this is where Banana API data is shown -->
+    <section class="puzzle" aria-labelledby="puzzle-title">
+      <h2 id="puzzle-title">Banana puzzle</h2>
+
+      <!-- Result area: image on success, message on loading or error -->
+      <div class="result-area" id="resultArea">
+        <img id="puzzleImage" alt="Banana puzzle image" hidden>
+        <p id="statusMessage" class="status" role="status">
+          Press “Get puzzle” to load one from the Banana API.
+        </p>
+      </div>
+
+      <div class="controls">
+        <button id="newPuzzleBtn" type="button" class="btn-primary">Get puzzle</button>
+      </div>
+
+      <fieldset class="answer">
+        <legend>Pick your answer (0–9)</legend>
+        <div id="answerPad" class="pad"></div>
+      </fieldset>
+
+      <p id="feedback" class="feedback" role="status"></p>
+
+      <!-- Evidence for the video: the real request and response -->
+      <details class="dev">
+        <summary>API response (developer view)</summary>
+        <p id="requestInfo" class="dev-line">No request made yet.</p>
+        <pre id="rawResponse" class="dev-raw"></pre>
+      </details>
+    </section>
+
+  </main>
+
+  <!-- Order matters: ui.js uses the function defined in api.js -->
+  <script src="api.js"></script>
+  <script src="ui.js"></script>
+  <!-- <script src="game.js"></script>  add back in Step 5 once its element IDs are checked -->
+</body>
+</html>
