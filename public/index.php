@@ -1,8 +1,10 @@
 <?php
 
+// File purpose: show the game and protect it behind player login.
 require_once dirname(__DIR__) . "/src/Auth/SessionManager.php";
 use App\Auth\SessionManager;
 
+// Send signed-out visitors to the login page.
 SessionManager::requireLogin();
 ?>
 <!DOCTYPE html>
@@ -10,12 +12,14 @@ SessionManager::requireLogin();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- JavaScript sends this session token with requests that change data. -->
     <meta name="csrf-token" content="<?= htmlspecialchars(SessionManager::csrfToken(), ENT_QUOTES, "UTF-8") ?>">
     <title>Flappy Bird Challenge</title>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body class="game-page">
     <div class="top-bar">
+        <!-- The menu gives the player a link to their profile and logout. -->
         <button type="button" class="profile-button" id="profileButton"
                 aria-label="Open profile menu" aria-expanded="false">👤</button>
         <div class="profile-menu" id="profileMenu">
@@ -29,6 +33,7 @@ SessionManager::requireLogin();
 
     <h1>🐦 Flappy Bird Challenge</h1>
     <main id="main-content">
+        <!-- The game area displays movement, score, and game status. -->
         <section class="game-section" aria-label="Flappy Bird game">
             <div id="game-container">
                 <div id="score">Score: 0</div>
@@ -40,6 +45,7 @@ SessionManager::requireLogin();
             <p>Press SPACE or click inside the game to flap!</p>
         </section>
 
+        <!-- The puzzle must be solved before the game can start. -->
         <section id="bananaChallenge" aria-labelledby="bananaTitle">
             <h2 id="bananaTitle">🍌 Banana API Challenge</h2>
             <p id="apiStatus">Click "Load Banana Challenge" to begin.</p>
@@ -52,6 +58,7 @@ SessionManager::requireLogin();
             </div>
         </section>
 
+        <!-- JavaScript loads the current top players into this list. -->
         <section id="leaderboard" aria-labelledby="leaderboardTitle">
             <h2 id="leaderboardTitle">🏆 Leaderboard</h2>
             <p id="leaderboardStatus" role="status" aria-live="polite">Loading scores...</p>
