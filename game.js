@@ -1,41 +1,39 @@
+
 const bird = document.getElementById("bird");
 const gameContainer = document.getElementById("game-container");
 const scoreDisplay = document.getElementById("score");
 const message = document.getElementById("message");
 const startButton = document.getElementById("startButton");
-const submitAnswerButton =
-    document.getElementById("submitAnswer");
+const submitAnswerButton = document.getElementById("submitAnswer");
 
 let birdY = 250;
 let velocity = 0;
 const gravity = 0.5;
+
 let gameRunning = false;
 let score = 0;
 let pipes = [];
+
 let gameLoop;
 let pipeLoop;
 
-// Load the Banana challenge
+// Load a new Banana puzzle
 function loadChallenge() {
     gameRunning = false;
 
     clearInterval(gameLoop);
     clearInterval(pipeLoop);
 
-    message.textContent =
-        "Solve the Banana Challenge first!";
+    message.textContent = "Solve the Banana puzzle to play!";
+    startButton.textContent = "Load New Challenge";
 
     loadBananaChallenge();
 }
 
-// Start the game after the correct Banana answer
+// Start Flappy Bird
 function startGame() {
-    // Remove old pipes
-    document.querySelectorAll(".pipe").forEach(
-        pipe => pipe.remove()
-    );
+    document.querySelectorAll(".pipe").forEach(pipe => pipe.remove());
 
-    // Reset game
     birdY = 250;
     velocity = 0;
     score = 0;
@@ -43,8 +41,10 @@ function startGame() {
     gameRunning = true;
 
     bird.style.top = birdY + "px";
-    scoreDisplay.textContent = "Score: " + score;
+    scoreDisplay.textContent = "Score: 0";
     message.textContent = "";
+
+    startButton.textContent = "Playing...";
 
     clearInterval(gameLoop);
     clearInterval(pipeLoop);
@@ -53,17 +53,18 @@ function startGame() {
     pipeLoop = setInterval(createPipe, 2000);
 }
 
-// Make the bird fly
+// Bird movement
 function flap() {
     if (gameRunning) {
         velocity = -8;
     }
 }
 
-// Update the game
+// Update game physics
 function updateGame() {
     velocity += gravity;
     birdY += velocity;
+
     bird.style.top = birdY + "px";
 
     if (birdY <= 0 || birdY >= 570) {
@@ -81,13 +82,9 @@ function createPipe() {
     const maxTopHeight = 350;
 
     const topHeight =
-        Math.floor(
-            Math.random() *
-            (maxTopHeight - minHeight)
-        ) + minHeight;
+        Math.floor(Math.random() * (maxTopHeight - minHeight)) + minHeight;
 
-    const bottomHeight =
-        600 - topHeight - gap;
+    const bottomHeight = 600 - topHeight - gap;
 
     const topPipe = document.createElement("div");
     topPipe.classList.add("pipe");
@@ -97,8 +94,7 @@ function createPipe() {
 
     const bottomPipe = document.createElement("div");
     bottomPipe.classList.add("pipe");
-    bottomPipe.style.height =
-        bottomHeight + "px";
+    bottomPipe.style.height = bottomHeight + "px";
     bottomPipe.style.left = "400px";
     bottomPipe.style.bottom = "0px";
 
@@ -114,47 +110,29 @@ function createPipe() {
 
 // Move pipes
 function movePipes() {
-    for (
-        let index = pipes.length - 1;
-        index >= 0;
-        index--
-    ) {
+    for (let index = pipes.length - 1; index >= 0; index--) {
         const pipePair = pipes[index];
 
-        const currentLeft =
-            parseInt(pipePair.top.style.left);
-
+        const currentLeft = parseInt(pipePair.top.style.left);
         const newLeft = currentLeft - 3;
 
-        pipePair.top.style.left =
-            newLeft + "px";
+        pipePair.top.style.left = newLeft + "px";
+        pipePair.bottom.style.left = newLeft + "px";
 
-        pipePair.bottom.style.left =
-            newLeft + "px";
-
-        // Increase score
-        if (
-            !pipePair.scored &&
-            newLeft + 65 < 80
-        ) {
+        if (!pipePair.scored && newLeft + 65 < 80) {
             score++;
-            scoreDisplay.textContent =
-                "Score: " + score;
-
+            scoreDisplay.textContent = "Score: " + score;
             pipePair.scored = true;
         }
 
-        // Check collision
         if (checkCollision(pipePair)) {
             endGame();
             return;
         }
 
-        // Remove old pipes
         if (newLeft < -70) {
             pipePair.top.remove();
             pipePair.bottom.remove();
-
             pipes.splice(index, 1);
         }
     }
@@ -162,29 +140,24 @@ function movePipes() {
 
 // Collision detection
 function checkCollision(pipePair) {
-    const birdRect =
-        bird.getBoundingClientRect();
-
-    const topPipeRect =
-        pipePair.top.getBoundingClientRect();
-
-    const bottomPipeRect =
-        pipePair.bottom.getBoundingClientRect();
+    const birdRect = bird.getBoundingClientRect();
+    const topRect = pipePair.top.getBoundingClientRect();
+    const bottomRect = pipePair.bottom.getBoundingClientRect();
 
     return (
-        birdRect.right > topPipeRect.left &&
-        birdRect.left < topPipeRect.right &&
-        birdRect.bottom > topPipeRect.top &&
-        birdRect.top < topPipeRect.bottom
+        birdRect.right > topRect.left &&
+        birdRect.left < topRect.right &&
+        birdRect.bottom > topRect.top &&
+        birdRect.top < topRect.bottom
     ) || (
-        birdRect.right > bottomPipeRect.left &&
-        birdRect.left < bottomPipeRect.right &&
-        birdRect.bottom > bottomPipeRect.top &&
-        birdRect.top < bottomPipeRect.bottom
+        birdRect.right > bottomRect.left &&
+        birdRect.left < bottomRect.right &&
+        birdRect.bottom > bottomRect.top &&
+        birdRect.top < bottomRect.bottom
     );
 }
 
-// End game
+// Bird dies
 function endGame() {
     if (!gameRunning) return;
 
@@ -193,40 +166,25 @@ function endGame() {
     clearInterval(gameLoop);
     clearInterval(pipeLoop);
 
-    message.textContent =
-        "Game Over! Score: " + score;
+    message.textContent = "Game Over! Score: " + score;
+
+    // Automatically load a NEW Banana puzzle
+    setTimeout(() => {
+        loadChallenge();
+    }, 1000);
 }
 
-// EVENT LISTENERS
+// EVENT-DRIVEN PROGRAMMING
 
-// Load challenge button
-startButton.addEventListener(
-    "click",
-    loadChallenge
-);
+startButton.addEventListener("click", loadChallenge);
 
-// Submit Banana answer
-submitAnswerButton.addEventListener(
-    "click",
-    checkBananaAnswer
-);
+submitAnswerButton.addEventListener("click", checkBananaAnswer);
 
-// Space key controls the bird only when game is running
-document.addEventListener(
-    "keydown",
-    function(event) {
-        if (
-            event.code === "Space" &&
-            gameRunning
-        ) {
-            event.preventDefault();
-            flap();
-        }
+document.addEventListener("keydown", function(event) {
+    if (event.code === "Space" && gameRunning) {
+        event.preventDefault();
+        flap();
     }
-);
+});
 
-// Mouse click controls the bird
-gameContainer.addEventListener(
-    "click",
-    flap
-);
+gameContainer.addEventListener("click", flap);

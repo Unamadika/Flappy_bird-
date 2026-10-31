@@ -1,6 +1,6 @@
+
 let bananaAnswer = null;
 
-// Load a challenge from the Banana API
 async function loadBananaChallenge() {
     const status = document.getElementById("apiStatus");
     const image = document.getElementById("bananaImage");
@@ -8,78 +8,81 @@ async function loadBananaChallenge() {
     const answerInput = document.getElementById("answerInput");
     const challengeMessage = document.getElementById("challengeMessage");
 
-    try {
-        status.textContent = "Loading Banana challenge...";
-        challengeMessage.textContent = "";
-        answerInput.value = "";
-        answerSection.style.display = "none";
-        image.style.display = "none";
+    bananaAnswer = null;
+    status.textContent = "Loading a new Banana puzzle...";
+    image.style.display = "none";
+    answerSection.style.display = "none";
+    answerInput.value = "";
+    challengeMessage.textContent = "";
 
-        // Request a challenge from the external Banana API
+    try {
         const response = await fetch(
             "https://marcconrad.com/uob/banana/api.php"
         );
 
         if (!response.ok) {
-            throw new Error("Could not connect to the Banana API.");
+            throw new Error("Banana API request failed");
         }
 
-        // Convert API response to JSON
         const data = await response.json();
 
-        // Store the correct answer
+        if (!data.question || data.solution === undefined) {
+            throw new Error("Invalid API response");
+        }
+
         bananaAnswer = Number(data.solution);
 
-        // Display the image returned by the API
+        image.onload = () => {
+            image.style.display = "block";
+        };
+
+        image.onerror = () => {
+            status.textContent = "Could not display the puzzle image.";
+        };
+
         image.src = data.question;
-        image.style.display = "block";
 
         answerSection.style.display = "block";
+        status.textContent = "Solve this puzzle to play Flappy Bird!";
 
-        status.textContent =
-            "Solve the challenge correctly to start the game!";
-
-        console.log("Banana API response received successfully.");
+        console.log("Banana API challenge loaded:", data);
 
     } catch (error) {
-        console.error("Banana API error:", error);
-
+        console.error(error);
         status.textContent =
-            "Could not load the challenge. Please try again.";
-
-        bananaAnswer = null;
+            "Could not load puzzle. Click Load Banana Challenge to retry.";
     }
 }
 
-// Check the player's answer
 function checkBananaAnswer() {
     const answerInput = document.getElementById("answerInput");
     const challengeMessage =
         document.getElementById("challengeMessage");
 
+    if (bananaAnswer === null) {
+        challengeMessage.textContent = "Load a puzzle first.";
+        return;
+    }
+
+    if (answerInput.value.trim() === "") {
+        challengeMessage.textContent = "Enter your answer first.";
+        return;
+    }
+
     const playerAnswer = Number(answerInput.value);
 
-    if (bananaAnswer === null) {
-        challengeMessage.textContent =
-            "Please load a Banana challenge first.";
-        return;
-    }
-
-    if (answerInput.value === "") {
-        challengeMessage.textContent =
-            "Please enter an answer.";
-        return;
-    }
-
     if (playerAnswer === bananaAnswer) {
-        challengeMessage.textContent =
-            "Correct! 🎉 Starting the game...";
+        challengeMessage.textContent = "Correct answer! 🎉";
 
-        // Start the Flappy Bird game
+        document.getElementById("answerSection").style.display = "none";
+
+        // Prevent reusing the same answer
+        bananaAnswer = null;
+
         startGame();
-
     } else {
-        challengeMessage.textContent =
-            "Wrong answer ❌ Try again!";
+        challengeMessage.textContent = "Wrong answer! Try again. ❌";
+        answerInput.value = "";
+        answerInput.focus();
     }
 }
