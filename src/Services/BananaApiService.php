@@ -1,14 +1,16 @@
 <?php
 
+// File purpose: get and validate puzzle data from the external Banana API.
 namespace App\Services;
 
 use JsonException;
 use RuntimeException;
 
-final class BananaApiService
+class BananaApiService
 {
     private const API_URL = "https://marcconrad.com/uob/banana/api.php";
 
+    // Request one puzzle and return its image URL and numeric solution.
     public function getChallenge(): array
     {
         $curl = curl_init(self::API_URL);
@@ -16,6 +18,7 @@ final class BananaApiService
             throw new RuntimeException("Could not initialize the Banana API request.");
         }
 
+        // Set request time limits and ask the service for JSON.
         curl_setopt_array($curl, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => false,
@@ -29,6 +32,7 @@ final class BananaApiService
         $error = curl_error($curl);
         curl_close($curl);
 
+        // Report network and HTTP errors instead of returning incomplete data.
         if ($response === false) {
             throw new RuntimeException("Banana API request failed: {$error}");
         }
@@ -37,12 +41,14 @@ final class BananaApiService
             throw new RuntimeException("Banana API returned HTTP {$status}.");
         }
 
+        // Decode the JSON and keep a useful exception if it is malformed.
         try {
             $challenge = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $exception) {
             throw new RuntimeException("Banana API returned invalid JSON.", 0, $exception);
         }
 
+        // Check all required fields before using data from the external service.
         if (
             !is_array($challenge)
             || !isset($challenge["question"])
@@ -54,6 +60,7 @@ final class BananaApiService
             throw new RuntimeException("Banana API returned an invalid challenge.");
         }
 
+        // The API solution is needed by PHP but is never sent directly to the browser.
         return [
             "question" => $challenge["question"],
             "solution" => (int) $challenge["solution"],
