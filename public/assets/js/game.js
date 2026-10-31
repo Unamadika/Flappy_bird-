@@ -1,3 +1,6 @@
+// File purpose: run the Flappy Bird game and connect its buttons to the game actions.
+
+// Find the page elements the game needs to update.
 const bird = document.getElementById("bird");
 const gameContainer = document.getElementById("game-container");
 const scoreDisplay = document.getElementById("score");
@@ -17,6 +20,7 @@ let pipes = [];
 let gameLoop;
 let pipeLoop;
 
+// Stop the game and ask the player to solve a new Banana puzzle.
 function loadChallenge() {
     gameRunning = false;
     clearInterval(gameLoop);
@@ -27,8 +31,13 @@ function loadChallenge() {
     loadBananaChallenge();
 }
 
+// Reset the bird and start the movement and pipe timers.
 function startGame() {
-    document.querySelectorAll(".pipe").forEach(pipe => pipe.remove());
+    const oldPipes = document.querySelectorAll(".pipe");
+    for (let index = 0; index < oldPipes.length; index++) {
+        oldPipes[index].remove();
+    }
+
     birdY = 250;
     velocity = 0;
     score = 0;
@@ -45,12 +54,14 @@ function startGame() {
     pipeLoop = setInterval(createPipe, 2000);
 }
 
+// Give the bird an upward push while a game is running.
 function flap() {
     if (gameRunning) {
         velocity = -8;
     }
 }
 
+// Apply gravity and check whether the bird hits the top or ground.
 function updateGame() {
     velocity += gravity;
     birdY += velocity;
@@ -64,6 +75,7 @@ function updateGame() {
     movePipes();
 }
 
+// Add a pair of pipes at the right side of the game area.
 function createPipe() {
     const gap = 160;
     const minHeight = 50;
@@ -76,6 +88,7 @@ function createPipe() {
     topPipe.style.left = "400px";
     topPipe.style.top = "0px";
 
+    // The lower pipe uses the remaining height below the gap.
     const bottomPipe = document.createElement("div");
     bottomPipe.classList.add("pipe");
     bottomPipe.style.height = bottomHeight + "px";
@@ -87,6 +100,7 @@ function createPipe() {
     pipes.push({ top: topPipe, bottom: bottomPipe, scored: false });
 }
 
+// Move pipes left, award points, and remove pipes that leave the screen.
 function movePipes() {
     for (let index = pipes.length - 1; index >= 0; index--) {
         const pipePair = pipes[index];
@@ -113,24 +127,29 @@ function movePipes() {
     }
 }
 
+// Compare the bird rectangle with both pipe rectangles.
 function checkCollision(pipePair) {
     const birdRect = bird.getBoundingClientRect();
     const topRect = pipePair.top.getBoundingClientRect();
     const bottomRect = pipePair.bottom.getBoundingClientRect();
 
-    return (
+    const hitsTopPipe = (
         birdRect.right > topRect.left &&
         birdRect.left < topRect.right &&
         birdRect.bottom > topRect.top &&
         birdRect.top < topRect.bottom
-    ) || (
+    );
+    const hitsBottomPipe = (
         birdRect.right > bottomRect.left &&
         birdRect.left < bottomRect.right &&
         birdRect.bottom > bottomRect.top &&
         birdRect.top < bottomRect.bottom
     );
+
+    return hitsTopPipe || hitsBottomPipe;
 }
 
+// Stop the timers, save the score, refresh the leaderboard, and load a new puzzle.
 function endGame() {
     if (!gameRunning) return;
 
@@ -141,11 +160,11 @@ function endGame() {
     scoreSaveStatus.textContent = "Saving score...";
 
     saveScore(score)
-        .then(() => {
+        .then(function () {
             scoreSaveStatus.textContent = "Score saved to your profile.";
             return loadLeaderboard();
         })
-        .catch(error => {
+        .catch(function (error) {
             console.error(error);
             scoreSaveStatus.textContent = "Could not save score. Please try again later.";
         });
@@ -153,10 +172,11 @@ function endGame() {
     setTimeout(loadChallenge, 1000);
 }
 
+// Connect the page controls to their actions.
 startButton.addEventListener("click", loadChallenge);
 submitAnswerButton.addEventListener("click", checkBananaAnswer);
 
-document.addEventListener("keydown", event => {
+document.addEventListener("keydown", function (event) {
     if (event.code === "Space" && gameRunning) {
         event.preventDefault();
         flap();
@@ -165,13 +185,15 @@ document.addEventListener("keydown", event => {
 
 gameContainer.addEventListener("click", flap);
 
-profileButton.addEventListener("click", event => {
+// Toggle the profile menu when its button is clicked.
+profileButton.addEventListener("click", function (event) {
     event.stopPropagation();
     profileMenu.classList.toggle("show");
     profileButton.setAttribute("aria-expanded", profileMenu.classList.contains("show"));
 });
 
-document.addEventListener("click", event => {
+// Close the profile menu when the player clicks outside it.
+document.addEventListener("click", function (event) {
     if (!profileMenu.contains(event.target) && !profileButton.contains(event.target)) {
         profileMenu.classList.remove("show");
         profileButton.setAttribute("aria-expanded", "false");
