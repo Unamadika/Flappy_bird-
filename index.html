@@ -1,65 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Flappy Banana</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird Assignment</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #70c5ce;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: white;
+            margin: 20px 0 10px;
+        }
+
+        #game-container {
+            position: relative;
+            width: 400px;
+            height: 600px;
+            overflow: hidden;
+            background: linear-gradient(#70c5ce 0%, #b9e8ff 100%);
+            border: 4px solid white;
+        }
+
+        #bird {
+            position: absolute;
+            width: 40px;
+            height: 30px;
+            left: 80px;
+            top: 250px;
+            background: yellow;
+            border: 3px solid #d99b00;
+            border-radius: 50%;
+        }
+
+        .pipe {
+            position: absolute;
+            width: 65px;
+            background: #4caf50;
+            border: 3px solid #287a2b;
+        }
+
+        #score {
+            position: absolute;
+            top: 15px;
+            width: 100%;
+            text-align: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 2px #333;
+        }
+
+        #message {
+            position: absolute;
+            top: 270px;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 2px #333;
+        }
+
+        button {
+            margin: 15px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
 </head>
+
 <body>
 
-  <header class="top">
-    <h1>Flappy Banana</h1>
-    <p>Fly through the pipes. Crash, and a banana puzzle gives you one more try.</p>
-  </header>
+    <h1>🐦 Flappy Bird</h1>
 
-  <main class="layout">
+    <div id="game-container">
+        <div id="bird"></div>
+        <div id="score">Score: 0</div>
+        <div id="message">Press SPACE or click START!</div>
+    </div>
 
-    <!-- Game area: the bird and pipes are added in a later step -->
-    <section class="stage" aria-label="Game area">
-      <canvas id="gameCanvas" width="320" height="480"></canvas>
-      <p class="stage-note">Game area. The bird arrives in a later step.</p>
-    </section>
+    <button id="startButton">Start Game</button>
 
-    <!-- Puzzle panel: this is where Banana API data is shown -->
-    <section class="puzzle" aria-labelledby="puzzle-title">
-      <h2 id="puzzle-title">Banana puzzle</h2>
+    <script src="game.js"></script>
+    <script src="api.js"></script>
 
-      <!-- Result area: image on success, message on loading or error -->
-      <div class="result-area" id="resultArea">
-        <img id="puzzleImage" alt="Banana puzzle image" hidden>
-        <p id="statusMessage" class="status" role="status">
-          Press “Get puzzle” to load one from the Banana API.
-        </p>
-      </div>
-
-      <div class="controls">
-        <button id="newPuzzleBtn" type="button" class="btn-primary">Get puzzle</button>
-      </div>
-
-      <fieldset class="answer">
-        <legend>Pick your answer (0–9)</legend>
-        <div id="answerPad" class="pad"></div>
-      </fieldset>
-
-      <p id="feedback" class="feedback" role="status"></p>
-
-      <!-- Evidence for the video: the real request and response -->
-      <details class="dev">
-        <summary>API response (developer view)</summary>
-        <p id="requestInfo" class="dev-line">No request made yet.</p>
-        <pre id="rawResponse" class="dev-raw"></pre>
-      </details>
-    </section>
-
-  </main>
-
-  <!-- Order matters: ui.js uses the function defined in api.js -->
-  <script src="api.js"></script>
-  <script src="ui.js"></script>
-  <!-- <script src="game.js"></script>  add back in Step 5 once its element IDs are checked -->
 </body>
 </html>
