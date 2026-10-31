@@ -1,5 +1,6 @@
 <?php
 
+// File purpose: show the signed-in player's account details and best score.
 require_once dirname(__DIR__) . "/src/Auth/SessionManager.php";
 require_once dirname(__DIR__) . "/src/Models/User.php";
 require_once dirname(__DIR__) . "/src/Models/Score.php";
@@ -9,17 +10,21 @@ use App\Auth\SessionManager;
 use App\Models\Score;
 use App\Models\User;
 
+// Redirect visitors who have no active login.
 SessionManager::requireLogin();
 $user = (new User($pdo))->findById($_SESSION["user_id"]);
 
 if (!$user) {
+    // Remove a stale session if its account no longer exists.
     SessionManager::logout();
     header("Location: login.php");
     exit;
 }
 
+// Look up the player's best saved score for the profile card.
 $bestScore = (new Score($pdo))->bestForUser($_SESSION["user_id"]);
 ?>
+<!-- Escape database text when writing it into the page. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
