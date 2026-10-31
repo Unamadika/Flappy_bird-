@@ -1,5 +1,6 @@
 <?php
 
+// File purpose: show the login form and start an authenticated player session.
 require_once dirname(__DIR__) . "/src/Auth/SessionManager.php";
 require_once dirname(__DIR__) . "/src/Models/User.php";
 $pdo = require dirname(__DIR__) . "/config/database.php";
@@ -7,21 +8,25 @@ $pdo = require dirname(__DIR__) . "/config/database.php";
 use App\Auth\SessionManager;
 use App\Models\User;
 
+// Start the session and prepare a form token to block forged requests.
 SessionManager::start();
 $csrfToken = SessionManager::csrfToken();
 $message = "";
 
+// Process submitted login details only after checking the form token.
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $submittedToken = $_POST["csrf_token"] ?? null;
     if (!is_string($submittedToken) || !SessionManager::validateCsrfToken($submittedToken)) {
         http_response_code(403);
         $message = "Security token expired. Please submit the form again.";
     } else {
+        // Look up the account and check the password against its saved hash.
         $email = trim($_POST["email"] ?? "");
         $password = $_POST["password"] ?? "";
         $user = (new User($pdo))->findByEmail($email);
 
         if ($user && password_verify($password, $user["password"])) {
+            // Regenerate the session ID before recording the authenticated identity.
             SessionManager::login((string) $user["id"], $user["username"]);
             header("Location: index.php");
             exit;
@@ -31,6 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 ?>
+<!-- The form displays a generic error so it does not reveal which login field was wrong. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
